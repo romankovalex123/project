@@ -1,0 +1,655 @@
+{% extends "base.html" %}
+
+{% block title %}ECC - Эллиптические Кривые{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>🔐 Эллиптические Кривые (ECC)</h1>
+
+    <div class="theory-section">
+        <h2>📖 Теория Эллиптических Кривых</h2>
+        <div class="theory-content">
+            <div class="math-formula">
+                y² = x³ + ax + b
+            </div>
+
+            <h3>Что такое эллиптическая кривая?</h3>
+            <p>Эллиптическая кривая — это гладкая кривая, заданная кубическим уравнением. В криптографии используются кривые над конечными полями.</p>
+
+            <h3>Математические операции:</h3>
+            <div class="math-operations">
+                <div class="operation">
+                    <h4>Сложение точек</h4>
+                    <p>Для точек P и Q на кривой, их сумма R определяется как отражение относительно оси X точки пересечения прямой PQ с кривой.</p>
+                </div>
+                <div class="operation">
+                    <h4>Удвоение точки</h4>
+                    <p>Удвоение точки P (P + P) определяется с помощью касательной в точке P.</p>
+                </div>
+                <div class="operation">
+                    <h4>Скалярное умножение</h4>
+                    <p>k × P = P + P + ... + P (k раз). Это основа ECC криптографии.</p>
+                </div>
+            </div>
+
+            <h3>Криптография на эллиптических кривых:</h3>
+            <ul>
+                <li><strong>Безопасность:</strong> Основана на сложности задачи дискретного логарифмирования в группе точек эллиптической кривой</li>
+                <li><strong>Эффективность:</strong> Требует меньших размеров ключей по сравнению с RSA</li>
+                <li><strong>Скорость:</strong> Быстрые операции при той же уровне безопасности</li>
+            </ul>
+
+            <h3>Наша кривая:</h3>
+            <p>Мы используем упрощенную кривую для демонстрации: <strong>y² = x³ + 7 mod 17</strong></p>
+            <p>Эта кривая содержит <strong id="points-count">19</strong> точек (включая точку в бесконечности)</p>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🎯 Визуализация Эллиптической Кривой</h2>
+
+        <div class="visualization-container">
+            <div class="canvas-wrapper">
+                <canvas id="curveCanvas" width="500" height="500"></canvas>
+            </div>
+            <div class="visualization-controls">
+                <h4>Управление визуализацией:</h4>
+                <div class="control-group">
+                    <label>Масштаб:</label>
+                    <input type="range" id="scaleSlider" min="15" max="40" value="25" onchange="updateVisualization()">
+                </div>
+                <div class="legend">
+                    <h4>Обозначения:</h4>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: #2c3e50"></span>
+                        <span>Точки кривой</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: #e74c3c"></span>
+                        <span>Генератор G</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: #3498db"></span>
+                        <span>Публичный ключ Q</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: #2ecc71"></span>
+                        <span>Точка сообщения M</span>
+                    </div>
+                </div>
+
+                <div class="point-operations">
+                    <h4>Работа с точками:</h4>
+
+                    <div class="control-group">
+                        <label>Добавить точку (x, y):</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="number" id="custom-point-x" placeholder="x" min="0" max="16" style="width: 60px;">
+                            <input type="number" id="custom-point-y" placeholder="y" min="0" max="16" style="width: 60px;">
+                        </div>
+                        <button onclick="addCustomPoint()" class="btn btn-small" style="margin-top: 0.5rem;">Добавить точку</button>
+                        <button onclick="clearCustomPoints()" class="btn btn-small btn-outline">Очистить точки</button>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Ваши точки:</label>
+                        <ul id="custom-points-list" style="font-size: 0.8rem; max-height: 100px; overflow-y: auto; background: white; padding: 0.5rem; border-radius: 4px;"></ul>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Операции с точками:</label>
+                        <button onclick="addPoints()" class="btn btn-small" style="margin: 0.25rem; width: 100%;">Сложить последние 2 точки</button>
+                        <button onclick="doublePoint()" class="btn btn-small" style="margin: 0.25rem; width: 100%;">Удвоить последнюю точку</button>
+                        <div style="display: flex; gap: 0.5rem; margin: 0.25rem 0;">
+                            <input type="number" id="multiplier-k" placeholder="k" min="1" max="10" style="width: 60px;">
+                            <button onclick="multiplyPoint()" class="btn btn-small" style="flex: 1;">Умножить на k</button>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Результат операции:</label>
+                        <div id="operation-result" style="background: white; padding: 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.9rem;">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="crypto-operations">
+            <div class="operation-panel">
+                <h3>🔑 Генерация ключей</h3>
+                <button onclick="generateECCKeys()" class="btn btn-primary">Сгенерировать ключи</button>
+                <div class="key-display">
+                    <div class="key-item">
+                        <label>Приватный ключ (d):</label>
+                        <code id="ecc-private-key">-</code>
+                    </div>
+                    <div class="key-item">
+                        <label>Публичный ключ (Q = d×G):</label>
+                        <code id="ecc-public-key">-</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="operation-panel">
+                <h3>🔒 Шифрование</h3>
+                <div class="input-group">
+                    <label>Сообщение (x-координата 1-16):</label>
+                    <input type="number" id="ecc-message" value="5" min="1" max="16">
+                    <button onclick="encryptECC()" class="btn btn-primary">Зашифровать</button>
+                </div>
+                <div class="result-display">
+                    <div class="result-item">
+                        <label>Точка сообщения M:</label>
+                        <code id="ecc-message-point">-</code>
+                    </div>
+                    <div class="result-item">
+                        <label>Зашифрованное C1 = k×G:</label>
+                        <code id="ecc-ciphertext1">-</code>
+                    </div>
+                    <div class="result-item">
+                        <label>Зашифрованное C2 = M + k×Q:</label>
+                        <code id="ecc-ciphertext2">-</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="operation-panel">
+                <h3>🔓 Дешифрование</h3>
+                <button onclick="decryptECC()" class="btn btn-success">Расшифровать</button>
+                <div class="result-item">
+                    <label>Расшифрованное сообщение:</label>
+                    <code id="ecc-decrypted">-</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+class EllipticCurveVisualizer {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.points = [];
+        this.specialPoints = {};
+        this.scale = 25;
+        this.offsetX = this.canvas.width / 2;
+        this.offsetY = this.canvas.height / 2;
+        this.connections = [];
+        this.customPoints = [];
+    }
+
+    drawGrid() {
+        const ctx = this.ctx;
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+
+        // Фон
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(0, 0, width, height);
+
+        // Сетка
+        ctx.strokeStyle = '#e9ecef';
+        ctx.lineWidth = 1;
+
+        // Вертикальные линии
+        for (let x = this.offsetX % this.scale; x < width; x += this.scale) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+
+        // Горизонтальные линии
+        for (let y = this.offsetY % this.scale; y < height; y += this.scale) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+
+        // Оси
+        ctx.strokeStyle = '#adb5bd';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.offsetX, 0);
+        ctx.lineTo(this.offsetX, height);
+        ctx.moveTo(0, this.offsetY);
+        ctx.lineTo(width, this.offsetY);
+        ctx.stroke();
+
+        // Подписи осей
+        ctx.fillStyle = '#6c757d';
+        ctx.font = '12px Arial';
+        ctx.fillText('x', width - 10, this.offsetY - 5);
+        ctx.fillText('y', this.offsetX + 5, 10);
+    }
+
+    drawPoint(x, y, color = '#2c3e50', label = '', radius = 4, isCustom = false) {
+        const ctx = this.ctx;
+        const canvasX = this.offsetX + x * this.scale;
+        const canvasY = this.offsetY - y * this.scale;
+
+        // Тень
+        ctx.shadowColor = 'rgba(0,0,0,0.2)';
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
+
+        // Точка
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(canvasX, canvasY, radius, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Обводка для пользовательских точек
+        if (isCustom) {
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        // Сбрасываем тень для текста
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+
+        if (label) {
+            ctx.fillStyle = color;
+            ctx.font = 'bold 13px Arial';
+            ctx.fillText(label, canvasX + 8, canvasY - 8);
+        }
+    }
+
+    drawConnection(point1, point2, color = '#95a5a6') {
+        const ctx = this.ctx;
+        const x1 = this.offsetX + point1[0] * this.scale;
+        const y1 = this.offsetY - point1[1] * this.scale;
+        const x2 = this.offsetX + point2[0] * this.scale;
+        const y2 = this.offsetY - point2[1] * this.scale;
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    drawCurve() {
+        this.drawGrid();
+
+        // Рисуем соединения между точками
+        this.connections.forEach(conn => {
+            this.drawConnection(conn.from, conn.to, conn.color);
+        });
+
+        // Рисуем все точки кривой
+        this.points.forEach(point => {
+            this.drawPoint(point[0], point[1], '#2c3e50', '', 3);
+        });
+
+        // Рисуем пользовательские точки
+        this.customPoints.forEach((point, index) => {
+            this.drawPoint(point[0], point[1], '#e74c3c', `P${index}`, 6, true);
+        });
+
+        // Рисуем специальные точки
+        if (this.specialPoints.generator) {
+            const g = this.specialPoints.generator;
+            this.drawPoint(g[0], g[1], '#e74c3c', 'G', 6);
+        }
+
+        if (this.specialPoints.publicKey) {
+            const pub = this.specialPoints.publicKey;
+            this.drawPoint(pub[0], pub[1], '#3498db', 'Q', 6);
+        }
+
+        if (this.specialPoints.messagePoint) {
+            const msg = this.specialPoints.messagePoint;
+            this.drawPoint(msg[0], msg[1], '#2ecc71', 'M', 6);
+        }
+
+        if (this.specialPoints.C1) {
+            const c1 = this.specialPoints.C1;
+            this.drawPoint(c1[0], c1[1], '#f39c12', 'C1', 6);
+        }
+
+        if (this.specialPoints.C2) {
+            const c2 = this.specialPoints.C2;
+            this.drawPoint(c2[0], c2[1], '#9b59b6', 'C2', 6);
+        }
+
+        // Рисуем результаты операций
+        if (this.specialPoints.operationResult) {
+            const result = this.specialPoints.operationResult;
+            this.drawPoint(result[0], result[1], '#d35400', 'R', 6);
+        }
+    }
+
+    addConnection(from, to, color = '#95a5a6') {
+        this.connections.push({ from, to, color });
+    }
+
+    clearConnections() {
+        this.connections = [];
+    }
+
+    addCustomPoint(x, y) {
+        this.customPoints.push([x, y]);
+        this.drawCurve();
+    }
+
+    clearCustomPoints() {
+        this.customPoints = [];
+        this.drawCurve();
+    }
+
+    setPoints(points) {
+        this.points = points;
+    }
+
+    setSpecialPoints(points) {
+        this.specialPoints = points;
+    }
+
+    setScale(scale) {
+        this.scale = scale;
+        this.drawCurve();
+    }
+
+    clear() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.points = [];
+        this.specialPoints = {};
+        this.connections = [];
+        this.customPoints = [];
+    }
+}
+
+// Создаем визуализатор
+const visualizer = new EllipticCurveVisualizer('curveCanvas');
+
+function updateVisualization() {
+    const scale = document.getElementById('scaleSlider').value;
+    visualizer.setScale(parseInt(scale));
+}
+
+// Функции для работы с точками
+function addCustomPoint() {
+    const x = parseInt(document.getElementById('custom-point-x').value);
+    const y = parseInt(document.getElementById('custom-point-y').value);
+
+    if (isNaN(x) || isNaN(y)) {
+        alert('Введите корректные координаты точки');
+        return;
+    }
+
+    // Проверяем, что точка на кривой
+    const isValid = visualizer.points.some(point => point[0] === x && point[1] === y);
+    if (!isValid) {
+        alert(`Точка (${x}, ${y}) не находится на кривой y² = x³ + 7 mod 17`);
+        return;
+    }
+
+    visualizer.addCustomPoint(x, y);
+    updateCustomPointsList();
+}
+
+function updateCustomPointsList() {
+    const list = document.getElementById('custom-points-list');
+    list.innerHTML = '';
+
+    visualizer.customPoints.forEach((point, index) => {
+        const li = document.createElement('li');
+        li.textContent = `P${index} = (${point[0]}, ${point[1]})`;
+        list.appendChild(li);
+    });
+}
+
+function clearCustomPoints() {
+    visualizer.clearCustomPoints();
+    document.getElementById('custom-points-list').innerHTML = '';
+}
+
+// Функции для операций с точками
+async function addPoints() {
+    if (visualizer.customPoints.length < 2) {
+        alert('Добавьте как минимум 2 точки для сложения');
+        return;
+    }
+
+    const point1 = visualizer.customPoints[visualizer.customPoints.length - 2];
+    const point2 = visualizer.customPoints[visualizer.customPoints.length - 1];
+
+    const response = await fetch('/api/ecc/add_points', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            point1: point1,
+            point2: point2
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.result) {
+        // Добавляем соединение
+        visualizer.addConnection(point1, data.result, '#27ae60');
+        visualizer.addConnection(point2, data.result, '#27ae60');
+
+        // Показываем результат
+        visualizer.setSpecialPoints({
+            ...visualizer.specialPoints,
+            operationResult: data.result
+        });
+
+        visualizer.drawCurve();
+
+        document.getElementById('operation-result').textContent =
+            `(${point1[0]},${point1[1]}) + (${point2[0]},${point2[1]}) = (${data.result[0]},${data.result[1]})`;
+    } else {
+        alert('Ошибка при сложении точек');
+    }
+}
+
+async function doublePoint() {
+    if (visualizer.customPoints.length < 1) {
+        alert('Добавьте точку для удвоения');
+        return;
+    }
+
+    const point = visualizer.customPoints[visualizer.customPoints.length - 1];
+
+    const response = await fetch('/api/ecc/double_point', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            point: point
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.result) {
+        // Добавляем соединение
+        visualizer.addConnection(point, data.result, '#f39c12');
+
+        // Показываем результат
+        visualizer.setSpecialPoints({
+            ...visualizer.specialPoints,
+            operationResult: data.result
+        });
+
+        visualizer.drawCurve();
+
+        document.getElementById('operation-result').textContent =
+            `2 × (${point[0]},${point[1]}) = (${data.result[0]},${data.result[1]})`;
+    } else {
+        alert('Ошибка при удвоении точки');
+    }
+}
+
+async function multiplyPoint() {
+    if (visualizer.customPoints.length < 1) {
+        alert('Добавьте точку для умножения');
+        return;
+    }
+
+    const k = parseInt(document.getElementById('multiplier-k').value);
+    const point = visualizer.customPoints[visualizer.customPoints.length - 1];
+
+    if (isNaN(k) || k < 1) {
+        alert('Введите корректный множитель k');
+        return;
+    }
+
+    const response = await fetch('/api/ecc/multiply_point', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            k: k,
+            point: point
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.result) {
+        // Показываем результат
+        visualizer.setSpecialPoints({
+            ...visualizer.specialPoints,
+            operationResult: data.result
+        });
+
+        visualizer.drawCurve();
+
+        document.getElementById('operation-result').textContent =
+            `${k} × (${point[0]},${point[1]}) = (${data.result[0]},${data.result[1]})`;
+    } else {
+        alert('Ошибка при умножении точки');
+    }
+}
+
+// Остальные функции остаются без изменений
+async function generateECCKeys() {
+    const response = await fetch('/api/ecc/generate_keys', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    });
+    const data = await response.json();
+
+    document.getElementById('ecc-private-key').textContent = data.private_key;
+    document.getElementById('ecc-public-key').textContent = `(${data.public_key[0]}, ${data.public_key[1]})`;
+
+    // Обновляем визуализацию
+    visualizer.setPoints(data.curve_points);
+    visualizer.setSpecialPoints({
+        generator: data.generator,
+        publicKey: data.public_key
+    });
+    visualizer.drawCurve();
+
+    // Обновляем счетчик точек
+    document.getElementById('points-count').textContent = data.curve_points.length;
+}
+
+async function encryptECC() {
+    const publicKey = document.getElementById('ecc-public-key').textContent;
+    const message = document.getElementById('ecc-message').value;
+
+    if (publicKey === '-') {
+        alert('Сначала сгенерируйте ключи!');
+        return;
+    }
+
+    const match = publicKey.match(/\((\d+), (\d+)\)/);
+    const pubKey = [parseInt(match[1]), parseInt(match[2])];
+
+    const response = await fetch('/api/ecc/encrypt', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            public_key: pubKey,
+            message: parseInt(message)
+        })
+    });
+    const data = await response.json();
+
+    document.getElementById('ecc-ciphertext1').textContent = `(${data.C1[0]}, ${data.C1[1]})`;
+    document.getElementById('ecc-ciphertext2').textContent = `(${data.C2[0]}, ${data.C2[1]})`;
+    document.getElementById('ecc-message-point').textContent = `(${data.message_point[0]}, ${data.message_point[1]})`;
+
+    // Обновляем визуализацию с точками шифрования
+    visualizer.setSpecialPoints({
+        ...visualizer.specialPoints,
+        messagePoint: data.message_point,
+        C1: data.C1,
+        C2: data.C2
+    });
+    visualizer.drawCurve();
+}
+
+async function decryptECC() {
+    const privateKey = document.getElementById('ecc-private-key').textContent;
+    const cipher1 = document.getElementById('ecc-ciphertext1').textContent;
+    const cipher2 = document.getElementById('ecc-ciphertext2').textContent;
+
+    if (privateKey === '-' || cipher1 === '-') {
+        alert('Сначала сгенерируйте ключи и зашифруйте сообщение!');
+        return;
+    }
+
+    const match1 = cipher1.match(/\((\d+), (\d+)\)/);
+    const match2 = cipher2.match(/\((\d+), (\d+)\)/);
+
+    const C1 = [parseInt(match1[1]), parseInt(match1[2])];
+    const C2 = [parseInt(match2[1]), parseInt(match2[2])];
+
+    const response = await fetch('/api/ecc/decrypt', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            private_key: parseInt(privateKey),
+            C1: C1,
+            C2: C2
+        })
+    });
+    const data = await response.json();
+
+    document.getElementById('ecc-decrypted').textContent = data.decrypted;
+}
+
+function clearECC() {
+    document.getElementById('ecc-private-key').textContent = '-';
+    document.getElementById('ecc-public-key').textContent = '-';
+    document.getElementById('ecc-ciphertext1').textContent = '-';
+    document.getElementById('ecc-ciphertext2').textContent = '-';
+    document.getElementById('ecc-decrypted').textContent = '-';
+    document.getElementById('ecc-message-point').textContent = '-';
+    document.getElementById('operation-result').textContent = '-';
+
+    visualizer.clear();
+    updateCustomPointsList();
+}
+
+// Загружаем кривую при загрузке страницы
+window.addEventListener('load', function() {
+    fetch('/api/ecc/get_curve', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    }).then(response => response.json())
+      .then(data => {
+          visualizer.setPoints(data.curve_points);
+          visualizer.setSpecialPoints({
+              generator: data.generator
+          });
+          visualizer.drawCurve();
+          document.getElementById('points-count').textContent = data.curve_points.length;
+      });
+});
+</script>
+{% endblock %}

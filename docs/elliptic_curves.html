@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Эллиптические Кривые - EllipticLab{% endblock %}
+
+{% block content %}
+<div class="theory-container">
+    <div class="theory-header">
+        <h1>Эллиптические Кривые</h1>
+        <p class="theory-subtitle">Математическая основа современной криптографии</p>
+    </div>
+
+    <div class="theory-content">
+        <!-- Введение -->
+        <section class="theory-section">
+            <h2>Что такое эллиптическая кривая?</h2>
+            <div class="theory-text">
+                <p>
+                    Эллиптическая кривая — это гладкая кривая, задаваемая уравнением вида:
+                </p>
+                <div class="equation-block">
+                    y² = x³ + ax + b
+                </div>
+                <p>
+                    В криптографии используются эллиптические кривые над конечными полями (чаще всего простыми), 
+                    где уравнение принимает вид:
+                </p>
+                <div class="equation-block">
+                    y² ≡ x³ + ax + b (mod p)
+                </div>
+                <p>
+                    где p — простое число, определяющее размер поля.
+                </p>
+            </div>
+        </section>
+
+        <!-- Свойства -->
+        <section class="theory-section">
+            <h2>Основные свойства</h2>
+            <div class="properties-grid">
+                <div class="property-card">
+                    <h3>Симметрия</h3>
+                    <p>Кривая симметрична относительно оси x. Если точка (x,y) лежит на кривой, то точка (x,-y) также на ней лежит</p>
+                </div>
+                <div class="property-card">
+                    <h3>Гладкость</h3>
+                    <p>Кривая не имеет самопересечений и острых углов (дискриминант не равен нулю)</p>
+                </div>
+                <div class="property-card">
+                    <h3>Групповая структура</h3>
+                    <p>Точки кривой образуют абелеву группу относительно операции сложения точек</p>
+                </div>
+                <div class="property-card">
+                    <h3>Дискретный логарифм</h3>
+                    <p>Задача дискретного логарифмирования на эллиптических кривых считается вычислительно сложной</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Операции с точками -->
+        <section class="theory-section">
+            <h2>Операции с точками</h2>
+            
+            <div class="operation-example">
+                <h3>Сложение точек</h3>
+                <p>Для двух различных точек P и Q, лежащих на кривой, их сумма R = P + Q определяется как:</p>
+                <ul>
+                    <li>Проводится прямая через P и Q</li>
+                    <li>Находится третья точка пересечения с кривой</li>
+                    <li>Отражаем эту точку относительно оси x</li>
+                </ul>
+            </div>
+
+            <div class="operation-example">
+                <h3>Удвоение точки</h3>
+                <p>Для точки P, удвоение 2P = P + P определяется как:</p>
+                <ul>
+                    <li>Проводится касательная к кривой в точке P</li>
+                    <li>Находится вторая точка пересечения с кривой</li>
+                    <li>Отражаем эту точку относительно оси x</li>
+                </ul>
+            </div>
+
+            <div class="operation-example">
+                <h3>Умножение на скаляр</h3>
+                <p>Умножение точки P на скаляр k (kP) выполняется как k-кратное сложение точки P самой с собой</p>
+            </div>
+        </section>
+
+        <!-- Групповая структура -->
+        <section class="theory-section">
+            <h2>Групповая структура</h2>
+            <div class="theory-text">
+                <p>
+                    Множество точек эллиптической кривой вместе с точкой на бесконечности (нейтральный элемент) 
+                    образует абелеву группу относительно операции сложения точек.
+                </p>
+                <div class="group-properties">
+                    <h4>Свойства группы:</h4>
+                    <ul>
+                        <li><strong>Замыкание:</strong> Сумма двух точек кривой также является точкой кривой</li>
+                        <li><strong>Ассоциативность:</strong> (P + Q) + R = P + (Q + R)</li>
+                        <li><strong>Коммутативность:</strong> P + Q = Q + P</li>
+                        <li><strong>Нейтральный элемент:</strong> Точка на бесконечности O</li>
+                        <li><strong>Обратный элемент:</strong> Для точки P = (x,y) обратной является -P = (x,-y)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Криптография на ЭК -->
+        <section class="theory-section">
+            <h2>Применение в криптографии</h2>
+            <div class="crypto-applications">
+                <div class="application">
+                    <h3>Протокол обмена ключами</h3>
+                    <p>ECDH (Elliptic Curve Diffie-Hellman) позволяет двум сторонам установить общий секретный ключ через незащищенный канал</p>
+                </div>
+                <div class="application">
+                    <h3>Цифровые подписи</h3>
+                    <p>ECDSA (Elliptic Curve Digital Signature Algorithm) используется для создания и проверки цифровых подписей</p>
+                </div>
+                <div class="application">
+                    <h3>Шифрование</h3>
+                    <p>ECIES (Elliptic Curve Integrated Encryption Scheme) обеспечивает конфиденциальность передаваемых данных</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Навигация -->
+        <section class="theory-navigation">
+            <h2>Применить знания на практике</h2>
+            <div class="nav-buttons">
+                <a href="{{ url_for('tutorial') }}" class="nav-button">
+                    <span class="nav-arrow">→</span>
+                    <div>
+                        <strong>Практика</strong>
+                        <p>Выполнить операции с точками</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('cryptography') }}" class="nav-button">
+                    <span class="nav-arrow">←</span>
+                    <div>
+                        <strong>Криптография</strong>
+                        <p>Вернуться к основам</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
