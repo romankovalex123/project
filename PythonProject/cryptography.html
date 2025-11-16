@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Основы Криптографии - EllipticLab{% endblock %}
+
+{% block content %}
+<div class="theory-container">
+    <div class="theory-header">
+        <h1>Основы Криптографии</h1>
+        <p class="theory-subtitle">Искусство защиты информации через математику</p>
+    </div>
+
+    <div class="theory-content">
+        <!-- Введение -->
+        <section class="theory-section">
+            <h2>Что такое криптография?</h2>
+            <div class="theory-text">
+                <p>
+                    Криптография — это наука о методах обеспечения конфиденциальности, целостности данных, 
+                    аутентификации и невозможности отказа от авторства. Современная криптография основана 
+                    на сложных математических задачах, которые трудно решить без знания специального ключа.
+                </p>
+            </div>
+        </section>
+
+        <!-- Основные понятия -->
+        <section class="theory-section">
+            <h2>Основные понятия</h2>
+            <div class="concepts-grid">
+                <div class="concept-card">
+                    <h3>Шифрование</h3>
+                    <p>Процесс преобразования открытого текста в шифрованный текст с использованием ключа</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Дешифрование</h3>
+                    <p>Обратный процесс преобразования шифрованного текста в открытый с использованием ключа</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Ключ</h3>
+                    <p>Секретная информация, определяющая результат работы криптографического алгоритма</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Алгоритм</h3>
+                    <p>Математическая процедура для выполнения шифрования и дешифрования</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Типы криптографии -->
+        <section class="theory-section">
+            <h2>Типы криптографических систем</h2>
+            
+            <div class="crypto-type">
+                <h3>Симметричная криптография</h3>
+                <div class="type-description">
+                    <p>
+                        <strong>Один ключ</strong> используется как для шифрования, так и для дешифрования.
+                        Отправитель и получатель должны заранее договориться об общем секретном ключе.
+                    </p>
+                    <div class="type-examples">
+                        <strong>Примеры алгоритмов:</strong>
+                        <ul>
+                            <li>AES (Advanced Encryption Standard)</li>
+                            <li>DES (Data Encryption Standard)</li>
+                            <li>3DES (Triple DES)</li>
+                            <li>Blowfish</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crypto-type">
+                <h3>Асимметричная криптография</h3>
+                <div class="type-description">
+                    <p>
+                        Используется <strong>пара ключей</strong>: открытый (public) и закрытый (private). 
+                        Открытый ключ доступен всем, закрытый хранится в секрете.
+                    </p>
+                    <div class="type-examples">
+                        <strong>Примеры алгоритмов:</strong>
+                        <ul>
+                            <li>RSA (Rivest-Shamir-Adleman)</li>
+                            <li>ECC (Elliptic Curve Cryptography)</li>
+                            <li>ElGamal</li>
+                            <li>DSA (Digital Signature Algorithm)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Преимущества ECC -->
+        <section class="theory-section">
+            <h2>Почему эллиптические кривыые?</h2>
+            <div class="advantages-grid">
+                <div class="advantage-card">
+                    <h4>Высокая безопасность</h4>
+                    <p>При меньшей длине ключа обеспечивают такую же безопасность, как RSA с большими ключами</p>
+                </div>
+                <div class="advantage-card">
+                    <h4>Эффективность</h4>
+                    <p>Более быстрые вычисления и меньшие требования к памяти</p>
+                </div>
+                <div class="advantage-card">
+                    <h4>Меньшие ключи</h4>
+                    <p>256-битный ключ ECC ≈ 3072-битному ключу RSA по стойкости</p>
+                </div>
+                <div class="advantage-card">
+                    <h4>Широкое применение</h4>
+                    <p>Используется в TLS, Bitcoin, SSH и других современных протоколах</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Навигация -->
+        <section class="theory-navigation">
+            <h2>Продолжить изучение</h2>
+            <div class="nav-buttons">
+                <a href="{{ url_for('elliptic_curves') }}" class="nav-button">
+                    <span class="nav-arrow">→</span>
+                    <div>
+                        <strong>Эллиптические Кривые</strong>
+                        <p>Изучить математические основы</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('tutorial') }}" class="nav-button">
+                    <span class="nav-arrow">→</span>
+                    <div>
+                        <strong>Практика</strong>
+                        <p>Опробовать операции на практике</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
