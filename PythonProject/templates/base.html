@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Исследование Эллиптических Кривых{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Навигация -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <span class="logo-icon">∞</span>
+                    <span class="logo-text">EllipticLab</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="{{ url_for('index') }}" class="nav-link">Главная</a></li>
+                    <li><a href="{{ url_for('cryptography') }}" class="nav-link">Криптография</a></li>
+                    <li><a href="{{ url_for('elliptic_curves') }}" class="nav-link">Эллиптические Кривые</a></li>
+                    <li><a href="{{ url_for('tutorial') }}" class="nav-link">Практика</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Футер -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>Инструмент для изучения криптографии на эллиптических кривых</p>
+                <p class="footer-copyright">© 2024 EllipticLab</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
